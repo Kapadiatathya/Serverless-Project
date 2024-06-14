@@ -16,6 +16,9 @@ def lambda_handler(event, context):
     except (KeyError, json.JSONDecodeError) as e:
         return {
             'statusCode': 400,
+             'headers': {
+                'Content-Type': 'application/json'
+              },
             'body': json.dumps(f'Email not found: {str(e)}')
         }
     
@@ -33,6 +36,9 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+             'headers': {
+                'Content-Type': 'application/json'
+              },
             'body': json.dumps(f'Error creating SNS topic: {str(e)}')
         }
     
@@ -46,11 +52,17 @@ def lambda_handler(event, context):
     except Exception as e:
         return {
             'statusCode': 500,
+            'headers': {
+                'Content-Type': 'application/json'
+              },
             'body': json.dumps(f'Error subscribing email: {str(e)}')
         }
     
     return {
         'statusCode': 200,
+        'headers': {
+                'Content-Type': 'application/json'
+              },
         'body': json.dumps('Registration email sent successfully')
     }
     
