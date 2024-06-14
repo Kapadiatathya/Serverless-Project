@@ -1,0 +1,178 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >
+  CloudFormation script for DALVacationHomeNotificationStack
+  - Lambda functions
+  - API Gateway
+
+Resources:
+  # NotifyRegisteredUser LambdaFunction
+  NotifyRegisteredUserLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: NotifyRegisteredUser
+      Handler: lambda_function.lambda_handler
+      Role: arn:aws:iam::622873784363:role/LabRole
+      Code:
+        S3Bucket: dalvacationhome-notifications-lambdas
+        S3Key: NotifyRegisteredUser.zip
+      Runtime: python3.12
+      Timeout: 15
+
+  # NotifyLoggedInUser LambdaFunction
+  NotifyLoggedInUserLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: NotifyLoggedInUser
+      Handler: lambda_function.lambda_handler
+      Role: arn:aws:iam::622873784363:role/LabRole
+      Code:
+        S3Bucket: dalvacationhome-notifications-lambdas
+        S3Key: NotifyLoggedInUser.zip
+      Runtime: python3.12
+      Timeout: 15
+
+  # API Gateway
+  ApiGatewayRestApi:
+    Type: AWS::ApiGateway::RestApi
+    Properties:
+      Name: UserRegistrationAPI
+      EndpointConfiguration:
+        Types:
+          - REGIONAL
+
+  # User Registration Notify API
+  ApiGatewayUserRegistrationResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ApiGatewayRestApi
+          - RootResourceId
+      PathPart: user-registration
+      RestApiId:
+        Ref: ApiGatewayRestApi
+
+  ApiGatewayUserRegistrationNotifyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ApiGatewayUserRegistrationResource
+      PathPart: notify
+      RestApiId:
+        Ref: ApiGatewayRestApi
+
+  ApiGatewayMethodUserRegistrationPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId:
+        Ref: ApiGatewayUserRegistrationNotifyResource
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: 
+            - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - {
+                Region: !Ref "AWS::Region",
+                LambdaArn: !GetAtt NotifyRegisteredUserLambdaFunction.Arn
+              }
+
+  UserRegistrationApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: NotifyRegisteredUserLambdaFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/user-registration/notify
+
+  ApiGatewayUserRegistrationDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ApiGatewayRestApi
+    DependsOn: ApiGatewayMethodUserRegistrationPost
+
+  ApiGatewayStage:
+    Type: AWS::ApiGateway::Stage
+    Properties:
+      StageName: prod
+      DeploymentId:
+        Ref: ApiGatewayUserRegistrationDeployment
+      RestApiId:
+        Ref: ApiGatewayRestApi
+
+  # User Login Notify API
+  ApiGatewayUserLoginResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Fn::GetAtt:
+          - ApiGatewayRestApi
+          - RootResourceId
+      PathPart: user-login
+      RestApiId:
+        Ref: ApiGatewayRestApi
+
+  ApiGatewayUserLoginNotifyResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: ApiGatewayUserLoginResource
+      PathPart: notify
+      RestApiId:
+        Ref: ApiGatewayRestApi
+
+  ApiGatewayMethodUserLoginPost:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId:
+        Ref: ApiGatewayUserLoginNotifyResource
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: 
+            - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - {
+                Region: !Ref "AWS::Region",
+                LambdaArn: !GetAtt NotifyLoggedInUserLambdaFunction.Arn
+              }
+
+  UserLoginApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: NotifyLoggedInUserLambdaFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/user-login/notify
+
+  ApiGatewayUserLoginDeployment:
+    Type: AWS::ApiGateway::Deployment
+    Properties:
+      RestApiId:
+        Ref: ApiGatewayRestApi
+      StageName: prod
+    DependsOn: ApiGatewayMethodUserLoginPost
+
+Outputs:
+  ApiGatewayUserRegistrationInvokeURL:
+    Description: "API Gateway User Registration Notify URL"
+    Value:
+      Fn::Sub: "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/user-registration/notify"
+
+  ApiGatewayUserLoginInvokeURL:
+    Description: "API Gateway User Login Notify URL"
+    Value:
+      Fn::Sub: "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/user-login/notify"
