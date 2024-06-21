@@ -6,13 +6,14 @@ sns_client = boto3.client('sns')
 
 def lambda_handler(event, context):
     '''
-    Sends an email after a user logs in
+    Sends an email with booking status
     '''
     
     # Get the email from the request body
     try:
         body = json.loads(event['body'])
         email = body['email']
+        booking_success = body['success']
     except (KeyError, json.JSONDecodeError) as e:
         return {
             'statusCode': 400,
@@ -58,10 +59,18 @@ def lambda_handler(event, context):
     
     # Send email using SNS
     try:
+        subject, message = '', ''
+        if booking_success:
+            subject = 'Booking successful - DALVacationHome'
+            message = 'Your room booking with DALVacationHome was successful!'
+        else:
+            subject = 'Booking failed - DALVacationHome'
+            message = 'Your room booking with DALVacationHome was not successful.'
+
         response = sns_client.publish(
             TopicArn=topic_arn,
-            Subject='Login successful - DALVacationHome',
-            Message= 'You have successfully logged in to DALVacationHome.',
+            Subject=subject,
+            Message=message,
             MessageAttributes={
                 'email': {
                     'DataType': 'String',
@@ -76,7 +85,7 @@ def lambda_handler(event, context):
                 'Content-Type': 'application/json',
                 'Access-Control-Allow-Origin': '*'
             },
-            'body': json.dumps(f'Error sending login email: {str(e)}')
+            'body': json.dumps(f'Error sending booking status email: {str(e)}')
         }
     
     return {
@@ -85,5 +94,5 @@ def lambda_handler(event, context):
             'Content-Type': 'application/json',
             'Access-Control-Allow-Origin': '*'
         },
-        'body': json.dumps('Login email sent successfully')
+        'body': json.dumps('Booking status email sent')
     }

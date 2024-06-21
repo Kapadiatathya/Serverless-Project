@@ -17,7 +17,8 @@ def lambda_handler(event, context):
         return {
             'statusCode': 400,
              'headers': {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
               },
             'body': json.dumps(f'Email not found: {str(e)}')
         }
@@ -31,13 +32,14 @@ def lambda_handler(event, context):
         mail_server, domain = remaining_tokens[0], remaining_tokens[1]
         
         response = sns_client.create_topic(
-            Name=f'user_registered_{user_name}_at_{mail_server}_dot_{domain}')
+            Name=f'user_{user_name}_at_{mail_server}_dot_{domain}')
         topic_arn = response['TopicArn']
     except Exception as e:
         return {
             'statusCode': 500,
              'headers': {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
               },
             'body': json.dumps(f'Error creating SNS topic: {str(e)}')
         }
@@ -53,7 +55,8 @@ def lambda_handler(event, context):
         return {
             'statusCode': 500,
             'headers': {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
               },
             'body': json.dumps(f'Error subscribing email: {str(e)}')
         }
@@ -61,7 +64,8 @@ def lambda_handler(event, context):
     return {
         'statusCode': 200,
         'headers': {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Access-Control-Allow-Origin': '*'
               },
         'body': json.dumps('Registration email sent successfully')
     }
