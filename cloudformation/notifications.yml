@@ -31,8 +31,21 @@ Resources:
       Runtime: python3.12
       Timeout: 15
 
+  # NotifyBookingStatus LambdaFunction
+  NotifyBookingStatusLambdaFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      FunctionName: NotifyBookingStatus
+      Handler: lambda_function.lambda_handler
+      Role: arn:aws:iam::622873784363:role/LabRole
+      Code:
+        S3Bucket: dalvacationhome-notifications-lambdas
+        S3Key: NotifyBookingStatus.zip
+      Runtime: python3.12
+      Timeout: 15
+
   # API Gateway
-  ApiGatewayRestApi:
+  NotificationsRestApi:
     Type: AWS::ApiGateway::RestApi
     Properties:
       Name: UserRegistrationAPI
@@ -40,36 +53,85 @@ Resources:
         Types:
           - REGIONAL
 
-  # User Registration Notify API
-  ApiGatewayUserRegistrationResource:
+  NotificationsResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId:
         Fn::GetAtt:
-          - ApiGatewayRestApi
+          - NotificationsRestApi
           - RootResourceId
-      PathPart: user-registration
+      PathPart: notifications
       RestApiId:
-        Ref: ApiGatewayRestApi
+        Ref: NotificationsRestApi
 
-  ApiGatewayUserRegistrationNotifyResource:
+  NotificationsOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref NotificationsResource
+      RestApiId: !Ref NotificationsRestApi
+      Integration:
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  # Registration
+
+  RegistrationResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId:
-        Ref: ApiGatewayUserRegistrationResource
-      PathPart: notify
+        Ref: NotificationsResource
+      PathPart: registration
       RestApiId:
-        Ref: ApiGatewayRestApi
+        Ref: NotificationsRestApi
 
-  ApiGatewayMethodUserRegistrationPost:
+  RegistrationOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref RegistrationResource
+      RestApiId: !Ref NotificationsRestApi
+      Integration:
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  RegistrationNotifyPostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
       HttpMethod: POST
       ResourceId:
-        Ref: ApiGatewayUserRegistrationNotifyResource
+        Ref: RegistrationResource
       RestApiId:
-        Ref: ApiGatewayRestApi
+        Ref: NotificationsRestApi
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
@@ -81,7 +143,7 @@ Resources:
                 LambdaArn: !GetAtt NotifyRegisteredUserLambdaFunction.Arn
               }
 
-  UserRegistrationApiLambdaInvokePermission:
+  RegistrationNotifyApiLambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -89,54 +151,52 @@ Resources:
         Ref: NotifyRegisteredUserLambdaFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/user-registration/notify
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsRestApi}/*/POST/notifications/registration
 
-  ApiGatewayUserRegistrationDeployment:
-    Type: AWS::ApiGateway::Deployment
-    Properties:
-      RestApiId:
-        Ref: ApiGatewayRestApi
-    DependsOn: ApiGatewayMethodUserRegistrationPost
+  # Login
 
-  ApiGatewayStage:
-    Type: AWS::ApiGateway::Stage
-    Properties:
-      StageName: prod
-      DeploymentId:
-        Ref: ApiGatewayUserRegistrationDeployment
-      RestApiId:
-        Ref: ApiGatewayRestApi
-
-  # User Login Notify API
-  ApiGatewayUserLoginResource:
+  LoginResource:
     Type: AWS::ApiGateway::Resource
     Properties:
       ParentId:
-        Fn::GetAtt:
-          - ApiGatewayRestApi
-          - RootResourceId
-      PathPart: user-login
+        Ref: NotificationsResource
+      PathPart: login
       RestApiId:
-        Ref: ApiGatewayRestApi
+        Ref: NotificationsRestApi
 
-  ApiGatewayUserLoginNotifyResource:
-    Type: AWS::ApiGateway::Resource
+  LoginOptionsMethod:
+    Type: AWS::ApiGateway::Method
     Properties:
-      ParentId:
-        Ref: ApiGatewayUserLoginResource
-      PathPart: notify
-      RestApiId:
-        Ref: ApiGatewayRestApi
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref LoginResource
+      RestApiId: !Ref NotificationsRestApi
+      Integration:
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
 
-  ApiGatewayMethodUserLoginPost:
+  LoginNotifyPostMethod:
     Type: AWS::ApiGateway::Method
     Properties:
       AuthorizationType: NONE
       HttpMethod: POST
       ResourceId:
-        Ref: ApiGatewayUserLoginNotifyResource
+        Ref: LoginResource
       RestApiId:
-        Ref: ApiGatewayRestApi
+        Ref: NotificationsRestApi
       Integration:
         Type: AWS_PROXY
         IntegrationHttpMethod: POST
@@ -148,7 +208,7 @@ Resources:
                 LambdaArn: !GetAtt NotifyLoggedInUserLambdaFunction.Arn
               }
 
-  UserLoginApiLambdaInvokePermission:
+  LoginNotifyApiLambdaInvokePermission:
     Type: AWS::Lambda::Permission
     Properties:
       Action: lambda:InvokeFunction
@@ -156,23 +216,123 @@ Resources:
         Ref: NotifyLoggedInUserLambdaFunction
       Principal: apigateway.amazonaws.com
       SourceArn:
-        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${ApiGatewayRestApi}/*/POST/user-login/notify
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsRestApi}/*/POST/notifications/login
 
-  ApiGatewayUserLoginDeployment:
+  # Booking
+
+  BookingResource:
+    Type: AWS::ApiGateway::Resource
+    Properties:
+      ParentId:
+        Ref: NotificationsResource
+      PathPart: booking
+      RestApiId:
+        Ref: NotificationsRestApi
+
+  BookingOptionsMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: OPTIONS
+      ResourceId: !Ref BookingResource
+      RestApiId: !Ref NotificationsRestApi
+      Integration:
+        IntegrationResponses:
+          - StatusCode: '200'
+            ResponseParameters:
+              method.response.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+              method.response.header.Access-Control-Allow-Methods: "'GET,OPTIONS'"
+              method.response.header.Access-Control-Allow-Origin: "'*'"
+        RequestTemplates:
+          application/json: '{"statusCode": 200}'
+        Type: MOCK
+      MethodResponses:
+        - StatusCode: '200'
+          ResponseParameters:
+            method.response.header.Access-Control-Allow-Headers: true
+            method.response.header.Access-Control-Allow-Methods: true
+            method.response.header.Access-Control-Allow-Origin: true
+
+  BookingNotifyPostMethod:
+    Type: AWS::ApiGateway::Method
+    Properties:
+      AuthorizationType: NONE
+      HttpMethod: POST
+      ResourceId:
+        Ref: BookingResource
+      RestApiId:
+        Ref: NotificationsRestApi
+      Integration:
+        Type: AWS_PROXY
+        IntegrationHttpMethod: POST
+        Uri:
+          Fn::Sub: 
+            - arn:aws:apigateway:${Region}:lambda:path/2015-03-31/functions/${LambdaArn}/invocations
+            - {
+                Region: !Ref "AWS::Region",
+                LambdaArn: !GetAtt NotifyBookingStatusLambdaFunction.Arn
+              }
+
+  BookingNotifyApiLambdaInvokePermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName:
+        Ref: NotifyBookingStatusLambdaFunction
+      Principal: apigateway.amazonaws.com
+      SourceArn:
+        Fn::Sub: arn:aws:execute-api:${AWS::Region}:${AWS::AccountId}:${NotificationsRestApi}/*/POST/notifications/booking
+
+  GatewayResponseDefault4XX:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseType: DEFAULT_4XX
+      RestApiId: !Ref NotificationsRestApi
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseTemplates:
+        application/json: '{"message":$context.error.messageString}'
+
+  GatewayResponseDefault5XX:
+    Type: 'AWS::ApiGateway::GatewayResponse'
+    Properties:
+      ResponseType: DEFAULT_5XX
+      RestApiId: !Ref NotificationsRestApi
+      ResponseParameters:
+        gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+        gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,Authorization'"
+        gatewayresponse.header.Access-Control-Allow-Methods: "'GET,POST,OPTIONS'"
+      ResponseTemplates:
+        application/json: '{"message":$context.error.messageString}'
+
+  # Create the deployment
+  MortgageSchedulesApiDeployment:
     Type: AWS::ApiGateway::Deployment
     Properties:
-      RestApiId:
-        Ref: ApiGatewayRestApi
+      RestApiId: !Ref NotificationsRestApi
       StageName: prod
-    DependsOn: ApiGatewayMethodUserLoginPost
+    DependsOn:
+      - RegistrationOptionsMethod
+      - RegistrationNotifyPostMethod
+      - LoginOptionsMethod
+      - LoginNotifyPostMethod
+      - BookingOptionsMethod
+      - BookingNotifyPostMethod
 
 Outputs:
   ApiGatewayUserRegistrationInvokeURL:
     Description: "API Gateway User Registration Notify URL"
     Value:
-      Fn::Sub: "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/user-registration/notify"
+      Fn::Sub: "https://${NotificationsRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/notifications/registration"
 
   ApiGatewayUserLoginInvokeURL:
     Description: "API Gateway User Login Notify URL"
     Value:
-      Fn::Sub: "https://${ApiGatewayRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/user-login/notify"
+      Fn::Sub: "https://${NotificationsRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/notifications/login"
+
+  ApiGatewayBookingInvokeURL:
+    Description: "API Gateway Booking Status Notify URL"
+    Value:
+      Fn::Sub: "https://${NotificationsRestApi}.execute-api.${AWS::Region}.amazonaws.com/prod/bookings/notifications/booking"
