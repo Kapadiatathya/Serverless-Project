@@ -123,6 +123,7 @@ export default function Login() {
     );
     alert('Login successful!');
     localStorage.setItem("email", email);
+    localStorage.setItem("role", role);
     navigate("/")
   };
 
@@ -248,7 +249,7 @@ export default function Login() {
                 required
                 fullWidth
                 id="cipheredText"
-                label={`${cipheredText} (Decipher text using your key)`}
+                label={`${cipheredText} (Cipher text using your key)`}
                 name="cipherAnswer"
                 value={cipherAnswer}
                 onChange={(e) => setCipherAnswer(e.target.value)}
