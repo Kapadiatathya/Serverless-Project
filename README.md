@@ -44,3 +44,49 @@ POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/b
 ```
 
 The user will receive an email with their booking status.
+
+### Get Sentiment Analysis result
+
+To get the sentiment analysis result of any sentence or sentences send the text to the following API:
+
+```
+POST https://us-central1-sharp-avatar-428014-f8.cloudfunctions.net/sentiment-analysis
+{
+    "text": "I love working with Google Cloud Functions! They are the best."
+}
+```
+
+The result will look like this:
+
+```
+{
+    "documentSentiment": {
+        "magnitude": 1.9,
+        "score": 0.9
+    },
+    "language": "en",
+    "sentences": [
+        {
+            "sentiment": {
+                "magnitude": 0.9,
+                "score": 0.9
+            },
+            "text": {
+                "beginOffset": 0,
+                "content": "I love working with Google Cloud Functions!"
+            }
+        },
+        {
+            "sentiment": {
+                "magnitude": 0.9,
+                "score": 0.9
+            },
+            "text": {
+                "beginOffset": 44,
+                "content": "THey are the best."
+            }
+        }
+    ]
+}
+```
+Get the required result for each sentence or the text as a whole.
