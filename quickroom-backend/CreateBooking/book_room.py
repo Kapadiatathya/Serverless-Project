@@ -4,7 +4,9 @@ import json
 # Initialize the SQS client
 sqs_client = boto3.client('sqs')
 
-queue_url = 'https://sqs.<region>.amazonaws.com/<account_id>/<queue_name>'
+#  Queue URL Format
+# 'https://sqs.<region>.amazonaws.com/<account_id>/<queue_name>'
+queue_url = 'https://sqs.us-east-1.amazonaws.com/761577439658/Booking'
 
 def send_booking_request(room_id, user_id, start_date, end_date):
     # Booking request payload
