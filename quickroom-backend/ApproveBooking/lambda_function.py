@@ -9,7 +9,10 @@ logger.setLevel(logging.INFO)
 # Initialize the DynamoDB client
 dynamodb_client = boto3.client('dynamodb')
 
-# DynamoDB Table
+# Initialize the SNS client for notifications
+sns_client = boto3.client('sns')
+
+# Define DynamoDb Table
 table_name = 'Bookings'
 
 def check_booking_availability(room_id, start_date, end_date):
@@ -69,7 +72,7 @@ def lambda_handler(event, context):
                 'body': json.dumps(f"Error: {str(e)}")
             }
 
-        # Check for user existence and their access permissions, if applicable.
+        # Check for user existence and access permissions, if applicable
 
         if approved:
             try:
@@ -97,6 +100,16 @@ def lambda_handler(event, context):
                     'statusCode': 500,
                     'body': json.dumps(f"Error: {str(e)}")
                 }
+        else:
+            try:
+                sns_client.publish(
+                    # SNS TopicArn needs to be integrated
+                    TopicArn='arn:aws:sns:<region>:<account_id>:<topic_name>',
+                    Message=f"Booking request for room {room_id} by user {user_id} from {start_date} to {end_date} was rejected.",
+                    Subject='Booking Rejected'
+                )
+            except Exception as e:
+                logger.error(f"Error sending SNS notification: {e}")
 
     return {
         'statusCode': 200,
