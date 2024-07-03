@@ -52,7 +52,8 @@ To get the sentiment analysis result of any sentence or sentences send the text 
 ```
 POST https://us-central1-sharp-avatar-428014-f8.cloudfunctions.net/sentiment-analysis
 {
-    "text": "I love working with Google Cloud Functions! They are the best."
+  "text": "Google Cloud Functions are disgusting! They are the worst thing I have ever seen so bad",
+  "rating": 0.0
 }
 ```
 
@@ -60,33 +61,37 @@ The result will look like this:
 
 ```
 {
-    "documentSentiment": {
-        "magnitude": 1.9,
-        "score": 0.9
+    "document_sentiment": {
+        "magnitude": 1.7,
+        "score": -0.8
     },
     "language": "en",
     "sentences": [
         {
             "sentiment": {
-                "magnitude": 0.9,
-                "score": 0.9
+                "magnitude": 0.8,
+                "score": -0.8
             },
             "text": {
                 "beginOffset": 0,
-                "content": "I love working with Google Cloud Functions!"
+                "content": "Google Cloud Functions are disgusting!"
             }
         },
         {
             "sentiment": {
-                "magnitude": 0.9,
-                "score": 0.9
+                "magnitude": 0.8,
+                "score": -0.8
             },
             "text": {
-                "beginOffset": 44,
-                "content": "THey are the best."
+                "beginOffset": 39,
+                "content": "They are the worst thing I have ever seen so bad."
             }
         }
-    ]
+    ],
+    "sentiment_category": "negative",
+    "sentiment_score": -4.0,
+    "total_review_score": -1.6,
+    "user_rating": 0.0
 }
 ```
-Get the required result for each sentence or the text as a whole.
+Get the required result for the test or combined with ratings.
