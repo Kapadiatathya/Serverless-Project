@@ -31,15 +31,33 @@ The user will receive an email after login.
 
 ### Booking Notify API
 
-After a user books a room, send a request with 
-- `success` set to `true` for booking success
-- `success` set to`false` for booking failure.
+After a user books a room, send a request for both successful and failed booking.
+
+If booking was successful:
+- set `email` to the user's email
+- set`success` to `true`
+- set `reference_code` to the booking reference code.
 
 ```
 POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/booking
 {
     "email": "String",
-    "success": "Boolean"
+    "success": "Boolean",
+    "reference_code": "String"
+}
+```
+
+If booking failed:
+- set `email` to the user's email
+- set `success` to`false`
+- set `reference_code` to null.
+
+```
+POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/booking
+{
+    "email": "String",
+    "success": "Boolean",
+    "reference_code": null
 }
 ```
 
