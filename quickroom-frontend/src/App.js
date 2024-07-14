@@ -3,10 +3,11 @@ import './App.css';
 import Home from "./Components/Home/Home"
 import Login from "./Components/Login/Login"
 import Signup from "./Components/Signup/Signup";
+import Feedback from "./Components/Feedback/Feeback";
+import Rooms from "./Components/Rooms/Rooms";
 
 
 function App() {
-
 
 
   return (
@@ -16,6 +17,8 @@ function App() {
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} /> 
           <Route path="/register" element={<Signup />} /> 
+          <Route path="/feedback" element={<Feedback />}></Route>
+          <Route path="/rooms" element={<Rooms />}></Route>
         </Routes>
       </Router>
     </div>
