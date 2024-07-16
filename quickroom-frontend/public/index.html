@@ -7,10 +7,7 @@
     <script src="https://www.gstatic.com/dialogflow-console/fast/df-messenger/prod/v1/df-messenger.js"></script>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#000000" />
-    <meta
-      name="description"
-      content="Web site created using create-react-app"
-    />
+    <meta name="description" content="Web site created using create-react-app" />
     <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
     <!--
       manifest.json provides metadata used when your web app is installed on a
@@ -42,27 +39,87 @@
       To create a production bundle, use `npm run build` or `yarn build`.
     -->
     <!-- Dialogflow Chatbot -->
-    <df-messenger
-      location="us-central1"
-      project-id="serverless-data-csci-5410"
-      agent-id="2c799646-b149-414a-9d23-6b52d2d3c027"
-      language-code="en"
-      max-query-length="-1">
-      <df-messenger-chat-bubble chat-title="DalVacationHome Chatbot">
-      </df-messenger-chat-bubble>
-    </df-messenger>
-    <style>
-      df-messenger {
-        z-index: 999;
-        position: fixed;
-        --df-messenger-font-color: #000;
-        --df-messenger-font-family: Google Sans;
-        --df-messenger-chat-background: #f3f6fc;
-        --df-messenger-message-user-background: #d3e3fd;
-        --df-messenger-message-bot-background: #fff;
-        bottom: 16px;
-        right: 16px;
-      }
-    </style>
+    <div id="chatbot-container"></div>
+    <script>
+      document.addEventListener("DOMContentLoaded", function() {
+        var role = localStorage.getItem("role");
+        var chatbotContainer = document.getElementById("chatbot-container");
+        var chatbotHTML;
+        if (role === "Agent") {
+          chatbotHTML = `
+            <df-messenger
+              location="us-central1"
+              project-id="serverless-data-csci-5410"
+              agent-id="713e2862-3ad4-4da3-8d3f-9ef51ba0ad43"
+              language-code="en"
+              max-query-length="-1">
+              <df-messenger-chat-bubble chat-title="Dal Vacation Chatbot"></df-messenger-chat-bubble>
+            </df-messenger>
+            <style>
+              df-messenger {
+                z-index: 999;
+                position: fixed;
+                --df-messenger-font-color: #000;
+                --df-messenger-font-family: Google Sans;
+                --df-messenger-chat-background: #EEF7EE;
+                --df-messenger-message-user-background: #d3e3fd;
+                --df-messenger-message-bot-background: #fff;
+                bottom: 16px;
+                right: 16px;
+              }
+            </style>
+          `;
+        } else if (role === "Customer") {
+          chatbotHTML = `
+            <df-messenger
+              location="us-central1"
+              project-id="serverless-data-csci-5410"
+              agent-id="2c799646-b149-414a-9d23-6b52d2d3c027"
+              language-code="en"
+              max-query-length="-1">
+              <df-messenger-chat-bubble chat-title="Dal Vacation Chatbot"></df-messenger-chat-bubble>
+            </df-messenger>
+            <style>
+              df-messenger {
+                z-index: 999;
+                position: fixed;
+                --df-messenger-font-color: #000;
+                --df-messenger-font-family: Google Sans;
+                --df-messenger-chat-background: #f3f6fc;
+                --df-messenger-message-user-background: #d3e3fd;
+                --df-messenger-message-bot-background: #fff;
+                bottom: 16px;
+                right: 16px;
+              }
+            </style>
+          `;
+        } else {
+          chatbotHTML = `
+            <df-messenger
+              location="us-central1"
+              project-id="serverless-data-csci-5410"
+              agent-id="713e2862-3ad4-4da3-8d3f-9ef51ba0ad43"
+              language-code="en"
+              max-query-length="-1">
+              <df-messenger-chat-bubble chat-title="Dal Vacation Chatbot"></df-messenger-chat-bubble>
+            </df-messenger>
+            <style>
+              df-messenger {
+                z-index: 999;
+                position: fixed;
+                --df-messenger-font-color: #000;
+                --df-messenger-font-family: Google Sans;
+                --df-messenger-chat-background: #EEF7EE;
+                --df-messenger-message-user-background: #d3e3fd;
+                --df-messenger-message-bot-background: #fff;
+                bottom: 16px;
+                right: 16px;
+              }
+            </style>
+          `;
+        }
+        chatbotContainer.innerHTML = chatbotHTML;
+      });
+    </script>
   </body>
 </html>
