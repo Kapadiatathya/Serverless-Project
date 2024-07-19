@@ -14,18 +14,21 @@ import MenuItem from '@mui/material/MenuItem';
 import bookingLogo from '../../bookingcom.svg';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Rooms'];
-const settings = [ 'Dashboard', 'Logout'];
+const pages = ['Rooms', 'Reviews'];
+const settings = ['Dashboard', 'Logout'];
 
 function Navbar() {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
   const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-  const navigate = useNavigate()
+  const [userRole, setUserRole] = React.useState(null);
+  const navigate = useNavigate();
 
   React.useEffect(() => {
     const email = localStorage.getItem('email');
+    const role = localStorage.getItem('role');
     setIsLoggedIn(!!email);
+    setUserRole(role);
   }, []);
 
   const handleOpenNavMenu = (event) => {
@@ -39,8 +42,14 @@ function Navbar() {
     setAnchorElNav(null);
   };
 
-  const handleCloseUserMenu = () => {
+  const handleCloseUserMenu = (setting) => {
     setAnchorElUser(null);
+    if (setting === 'Dashboard') {
+      navigate("/dashboard");
+    } else if (setting === 'Logout') {
+      handleLogout(); 
+      navigate("/");
+    }
   };
 
   const handleLogoClick = () => {
@@ -49,7 +58,9 @@ function Navbar() {
 
   const handlePageClick = (page) => {
     if (page === 'Rooms') {
-        navigate("/rooms")
+        navigate("/rooms");
+    } else if (page === 'Reviews') {
+      navigate("/reviews");
     }
   };
 
@@ -57,11 +68,11 @@ function Navbar() {
     localStorage.removeItem('email');
     localStorage.removeItem('role');
     setIsLoggedIn(false);
-    navigate("/")
+    navigate("/");
   };
 
   const handleLogin = () => {
-    navigate("/login")
+    navigate("/login");
   };
 
   return (
@@ -139,15 +150,17 @@ function Navbar() {
                     horizontal: 'right',
                   }}
                   open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
+                  onClose={() => handleCloseUserMenu(null)}
                 >
                   {settings.map((setting) => (
-                    <MenuItem
-                      key={setting}
-                      onClick={setting === 'Logout' ? handleLogout : handleCloseUserMenu}
-                    >
-                      <Typography textAlign="center">{setting}</Typography>
-                    </MenuItem>
+                    (setting === 'Dashboard' && userRole !== 'agent') ? null : (
+                      <MenuItem
+                        key={setting}
+                        onClick={() => handleCloseUserMenu(setting)}
+                      >
+                        <Typography textAlign="center">{setting}</Typography>
+                      </MenuItem>
+                    )
                   ))}
                 </Menu>
               </>
@@ -162,4 +175,5 @@ function Navbar() {
     </AppBar>
   );
 }
+
 export default Navbar;

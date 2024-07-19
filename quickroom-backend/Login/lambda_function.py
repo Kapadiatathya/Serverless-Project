@@ -1,10 +1,17 @@
 import boto3
 from botocore.exceptions import ClientError
 import json
+import decimal
+
+class DecimalEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, decimal.Decimal):
+            return float(obj)
+        return super(DecimalEncoder, self).default(obj)
 
 dynamodb = boto3.resource('dynamodb')
-agent_table = dynamodb.Table('agents') 
-user_table = dynamodb.Table('customers')   
+agent_table = dynamodb.Table('agents')
+user_table = dynamodb.Table('customers')
 
 def lambda_handler(event, context):
     # Parse request parameters
@@ -27,7 +34,7 @@ def lambda_handler(event, context):
             item = response['Item']
             return {
                 'statusCode': 200,
-                'body': json.dumps(item)
+                'body': json.dumps(item, cls=DecimalEncoder)
             }
         else:
             return {

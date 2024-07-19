@@ -41,23 +41,23 @@ export default function Login() {
     const password = data.get('password');
     setEmail(email);
     setPassword(password);
-
+  
     const userPool = getUserPool(role);
-
+  
     const user = new CognitoUser({
       Username: email,
       Pool: userPool
     });
-
+  
     const authDetails = new AuthenticationDetails({
       Username: email,
       Password: password,
     });
-
+  
     user.authenticateUser(authDetails, {
       onSuccess: async (data) => {
         console.log("onSuccess: ", data);
-
+  
         setLoading(true);
         try {
           const response = await axios.post(`${process.env.REACT_APP_API_ENDPOINT}/signin`, {
@@ -66,66 +66,81 @@ export default function Login() {
               role: role
             })
           });
-
           const userData = JSON.parse(response.data.body);
           setSecurityQuestion(userData.question);
           setCipherKey(Number(userData.cipher_key));
           setDbAnswer(userData.answer);
-
+  
           // Generate a random word
           const randomWord = generateRandomWord();
           setRandomWord(randomWord);
-
+  
           // Generate ciphered text
           const cipheredText = applyShiftCipher(randomWord, cipherKey);
           setCipheredText(cipheredText);
-
+  
           setLoading(false);
-          setStep(2); // Move to the next step after values are set
+          setStep(2); // Proceed to the security question step
         } catch (error) {
           console.error('Error fetching user details:', error);
           alert('Error fetching user details');
           setLoading(false);
         }
       },
-
+  
       onFailure: (err) => {
         console.log("onFailure: ", err);
         alert('Authentication failed: ' + err.message);
       },
-
+  
       newPasswordRequired: (data) => {
         console.log("newPasswordRequired: ", data);
       }
     });
   };
+  
 
   const handleVerificationSubmit = async (event) => {
     event.preventDefault();
-    const decipheredText = applyShiftCipher(cipherAnswer, -cipherKey);
-    if (decipheredText !== randomWord) {
-      alert('Cipher key answer is incorrect');
-      return;
-    }
-    if (securityAnswer !== dbAnswer) {
-      alert('Security answer is incorrect');
-      return;
-    }
-    await axios.post(`https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/login`,
-      {
-        email: email
-      },
-      {
-        headers: {
-          'Content-Type': 'application/json'
-        }
+    if (step === 2) {
+      // Handle security answer validation
+      if (securityAnswer !== dbAnswer) {
+        alert('Security answer is incorrect');
+        return;
       }
-    );
-    alert('Login successful!');
-    localStorage.setItem("email", email);
-    localStorage.setItem("role", role);
-    navigate("/")
+      setStep(3); // Proceed to the cipher verification step
+    } else if (step === 3) {
+      // Handle cipher answer validation
+      const decipheredText = applyShiftCipher(cipherAnswer, -cipherKey);
+      if (decipheredText !== randomWord) {
+        alert('Cipher key answer is incorrect');
+        return;
+      }
+      await axios.post(`https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/login`,
+        {
+          email: email
+        },
+        {
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        }
+      );
+      const response = await axios.post('https://us-central1-sharp-avatar-428014-f8.cloudfunctions.net/savelogin', {
+        email,
+        role
+      });
+      if (response.status === 200) {
+        alert('Login successful!');
+        localStorage.setItem("email", email);
+        localStorage.setItem("role", role);
+        navigate("/");
+      } else {
+        console.error('Error logging in:', response.data.error);
+      }
+    }
   };
+  
 
   const generateRandomWord = () => {
     const words = ['apple', 'banana', 'cherry', 'date', 'elderberry', 'school', 'academics', 'Utopia'];
@@ -170,7 +185,7 @@ export default function Login() {
             <LockOutlinedIcon />
           </Avatar>
           <Typography component="h1" variant="h5">
-            {step === 1 ? 'Sign in' : 'Security Verification'}
+            {step === 1 ? 'Sign in' : step === 2 ? 'Security Verification' : 'Cipher Verification'}
           </Typography>
           {step === 1 ? (
             <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 1 }}>
@@ -227,13 +242,12 @@ export default function Login() {
                 </Grid>
               </Grid>
             </Box>
-          ) : loading ? (
+          ) : step === 2 ? loading ? (
             <Box sx={{ display: 'flex', justifyContent: 'center', mt: 2 }}>
               <CircularProgress />
             </Box>
           ) : (
             <Box component="form" noValidate onSubmit={handleVerificationSubmit} sx={{ mt: 1 }}>
-              
               <TextField
                 margin="normal"
                 required
@@ -244,6 +258,17 @@ export default function Login() {
                 value={securityAnswer}
                 onChange={(e) => setSecurityAnswer(e.target.value)}
               />
+              <Button
+                type="submit"
+                fullWidth
+                variant="contained"
+                sx={{ mt: 3, mb: 2 }}
+              >
+                Submit Answer
+              </Button>
+            </Box>
+          ) : (
+            <Box component="form" noValidate onSubmit={handleVerificationSubmit} sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -268,4 +293,5 @@ export default function Login() {
       </Grid>
     </Grid>
   );
+  
 }
