@@ -26,7 +26,11 @@ def lambda_handler(event, context):
     # Create SNS topic
     try:
         tokens = email.split('@')
-        user_name = tokens[0]
+
+        # Remove special characters from email username
+        # Code borrowed from 
+        # https://stackoverflow.com/questions/5843518/remove-all-special-characters-punctuation-and-spaces-from-string
+        user_name = ''.join(c for c in tokens[0] if c.isalnum())
         
         remaining_tokens = tokens[1].split('.')
         mail_server, domain = remaining_tokens[0], remaining_tokens[1]
