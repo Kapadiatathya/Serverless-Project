@@ -62,3 +62,9 @@ POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/b
 ```
 
 The user will receive an email with their booking status.
+
+
+ROOM BOOKING SYSTEM WORKFLOW-
+1. Frontend calls SQS Url with the booking information as payload.
+2. SQS automatically triggers Lambda Function as soon as it receives message.
+3. Lambda Function checks for approval conditions and makes an entry to DynamoDb Table if approval conditions are met.
