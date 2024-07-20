@@ -9,11 +9,12 @@ def lambda_handler(event, context):
     Sends an email with booking status
     '''
     
-    # Get the email from the request body
+    # Get the email and status from the request body
     try:
         body = json.loads(event['body'])
         email = body['email']
         booking_success = body['success']
+        
     except (KeyError, json.JSONDecodeError) as e:
         return {
             'statusCode': 400,
@@ -61,8 +62,10 @@ def lambda_handler(event, context):
     try:
         subject, message = '', ''
         if booking_success:
+            reference_code = body['reference_code']
             subject = 'Booking successful - DALVacationHome'
-            message = 'Your room booking with DALVacationHome was successful!'
+            message = ('Your room booking with DALVacationHome was successful!\n'
+                        f'Booking reference code: {reference_code}')
         else:
             subject = 'Booking failed - DALVacationHome'
             message = 'Your room booking with DALVacationHome was not successful.'
