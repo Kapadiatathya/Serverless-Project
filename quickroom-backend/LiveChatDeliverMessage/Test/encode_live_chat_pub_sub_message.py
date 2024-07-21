@@ -3,8 +3,8 @@ import json
 
 # Sample message
 message = {
-    "user_id": "12345",
-    "message": "Your message content"
+    "user_id": "123456",
+    "message": "Message content"
 }
 
 # Convert the message to JSON and encode it

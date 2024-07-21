@@ -23,8 +23,6 @@ def pubsub_to_user(event, context):
 
     if user_doc.exists:
         user_data = user_doc.to_dict()
-        # Here you can process and deliver the message to the user.
-        # For example, updating the user document with the new message:
         user_ref.update({
             'messages': firestore.ArrayUnion([message_data])
         })
