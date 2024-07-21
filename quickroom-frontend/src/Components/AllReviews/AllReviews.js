@@ -7,6 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
+import CircularProgress from '@mui/material/CircularProgress';
 import Navbar from '../Navbar/Navbar';
 import axios from 'axios';
 
@@ -31,14 +32,17 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 
 export default function AllReviews() {
   const [feedbacks, setFeedbacks] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchFeedbacks = async () => {
       try {
         const response = await axios.get('https://us-central1-sharp-avatar-428014-f8.cloudfunctions.net/allResponse');
         setFeedbacks(response.data);
+        setLoading(false);
       } catch (error) {
         console.error('Error fetching feedbacks:', error);
+        setLoading(false);
       }
     };
 
@@ -49,34 +53,38 @@ export default function AllReviews() {
     <>
       <Navbar />
       <h1>All Reviews</h1>
-      <div>
-      <TableContainer component={Paper} style={{ margin: '20px', marginRight: '20px'  }}>
-      <Table aria-label="feedback table">
-        <TableHead>
-          <TableRow>
-            <StyledTableCell>Full Name</StyledTableCell>
-            <StyledTableCell>Room Type</StyledTableCell>
-            <StyledTableCell align="center">Room Number</StyledTableCell>
-            <StyledTableCell align="center">Rating</StyledTableCell>
-            <StyledTableCell>Comment</StyledTableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {feedbacks.map((feedback) => (
-            <StyledTableRow key={feedback.bookingCode}>
-              <StyledTableCell component="th" scope="row">
-                {feedback.fullName}
-              </StyledTableCell>
-              <StyledTableCell>{feedback.roomType}</StyledTableCell>
-              <StyledTableCell align="center">{feedback.roomNumber}</StyledTableCell>
-              <StyledTableCell align="center">{feedback.rating}</StyledTableCell>
-              <StyledTableCell>{feedback.comment}</StyledTableCell>
-            </StyledTableRow>
-          ))}
-        </TableBody>
-      </Table>
-    </TableContainer>
-      </div>
+      {loading ? (
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '50vh' }}>
+          <CircularProgress />
+        </div>
+      ) : (
+        <TableContainer component={Paper} style={{ margin: '20px', marginRight: '20px' }}>
+          <Table aria-label="feedback table">
+            <TableHead>
+              <TableRow>
+                <StyledTableCell>Full Name</StyledTableCell>
+                <StyledTableCell>Room Type</StyledTableCell>
+                <StyledTableCell align="center">Room Number</StyledTableCell>
+                <StyledTableCell align="center">Rating</StyledTableCell>
+                <StyledTableCell>Comment</StyledTableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {feedbacks.map((feedback) => (
+                <StyledTableRow key={feedback.bookingCode}>
+                  <StyledTableCell component="th" scope="row">
+                    {feedback.fullName}
+                  </StyledTableCell>
+                  <StyledTableCell>{feedback.roomType}</StyledTableCell>
+                  <StyledTableCell align="center">{feedback.roomNumber}</StyledTableCell>
+                  <StyledTableCell align="center">{feedback.rating}</StyledTableCell>
+                  <StyledTableCell>{feedback.comment}</StyledTableCell>
+                </StyledTableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      )}
     </>
   );
 }
