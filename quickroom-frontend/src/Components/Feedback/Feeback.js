@@ -16,6 +16,7 @@ import FeedbackIcon from '@mui/icons-material/Feedback';
 import Rating from '@mui/material/Rating';
 import StarIcon from '@mui/icons-material/Star';
 import axios from 'axios';
+import Navbar from '../Navbar/Navbar';
 
 
 export default function Feedback() {
@@ -107,6 +108,8 @@ export default function Feedback() {
   };
 
   return (
+    <>
+    <Navbar></Navbar>
     <Container component="main" maxWidth="xs">
       <CssBaseline />
       <Box
@@ -252,5 +255,7 @@ export default function Feedback() {
         </Box>
       </Box>
     </Container>
+    </>
+    
   );
 }
