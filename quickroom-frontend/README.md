@@ -12,7 +12,11 @@
 
 `FATAL ERROR: Reached heap limit Allocation failed - JavaScript heap out of memory`
 
-5. Apply the Terraform file on GCP Cloud Shell
+5. Upload the Terraform file on GCP Cloud Shell.
+
+6. Type `terraform init` on GCP Cloud Shell.
+
+7. Type `terraform apply` on GCP Cloud Shell.
 
 ## Debugging tip:
 
