@@ -3,7 +3,7 @@
 
 ## Notifications API 
 
-### User Registration Notify API
+### USER REGISTRATION NOTIFY API
 
 After a user registers, call this endpoint with the user's email:
 
@@ -16,7 +16,7 @@ POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/notifications/regist
 
 The user will receive an email after registration.
 
-### User Login Notify API
+### USER LOGIN NOTIFY API
 
 After a user logs in, call this endpoint with the user's email:
 
@@ -29,7 +29,7 @@ POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/l
 
 The user will receive an email after login.
 
-### Booking Notify API
+### BOOKING NOTIFY API
 
 After a user books a room, send a request for both successful and failed booking.
 
@@ -63,7 +63,7 @@ POST https://8hzds97iz5.execute-api.us-east-1.amazonaws.com/prod/notifications/b
 
 The user will receive an email with their booking status.
 
-### Get Sentiment Analysis result
+### GET SENTIMENT ANALYSIS RESULT
 
 To get the sentiment analysis result of any sentence or sentences send the text to the following API:
 
@@ -114,14 +114,17 @@ The result will look like this:
 ```
 Get the required result for the test or combined with ratings.
 
-ROOM BOOKING SYSTEM WORKFLOW-
-1. Frontend calls SQS Url with the booking information as payload.
-2. SQS automatically triggers Lambda Function as soon as it receives message.
-3. Lambda Function checks for approval conditions and makes an entry to DynamoDb Table if approval conditions are met.
+## ROOM BOOKING SYSTEM WORKFLOW-
+1. Frontend calls API Gateway which forwards requests to first Lambda Function.
+2. This lambda function then accepts the payload and invokes SQS with its URL and the booking information is passed on via payload.
+3. SQS automatically triggers the second Lambda function as soon as it receives message.
+4. Second Lambda function checks for approval conditions and makes an entry to DynamoDb Table if approval conditions are met.
+5. Post entry into DynamoDb, the users are notified about the booking status with the help SNS - NotifyBookingStatus.
 
-## Reservations APIs 
 
-### Create Reservation
+## RESERVATION APIs
+
+### CREATE RESERVATION
 
 Call this API after the user clicks the Create Reservation button. All JSON objects are mandatory:
 
@@ -144,7 +147,7 @@ POST https://b2111el3sj.execute-api.us-east-1.amazonaws.com/v1/createReservation
 }
 ```
 
-### Read Reservation
+### READ RESERVATION
 
 Call this API to fetch a Reservation based on BookingID:
 
@@ -156,7 +159,7 @@ POST https://b2111el3sj.execute-api.us-east-1.amazonaws.com/v1/readReservation
 }
 ```
 
-### Update Reservation
+### UPDATE RESERVATION
 
 Call this API when a user modifies the Reservation. Booking ID mandatory, everything else optional:
 
@@ -179,7 +182,7 @@ POST https://b2111el3sj.execute-api.us-east-1.amazonaws.com/v1/updateReservation
 }
 ```
 
-### Delete Reservation
+### DELETE RESERVATIONS
 
 Call this API to delete a Reservation based on BookingID:
 
