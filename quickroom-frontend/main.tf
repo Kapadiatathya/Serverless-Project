@@ -18,7 +18,7 @@ resource "google_cloud_run_service" "web_app" {
         }
         resources {
           limits = {
-            memory = "1Gi"
+            memory = "2Gi"
             cpu    = "1"
           }
         }
