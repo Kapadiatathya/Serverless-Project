@@ -86,8 +86,15 @@ export default function Feedback() {
     event.preventDefault();
     const { bookingCode, fullName, roomType, numberOfGuests, roomPrice, roomNumber, rating, comment, totalNights } = formData;
 
+    if (
+      !bookingCode || !fullName || !roomType || !numberOfGuests || !roomPrice || !roomNumber || !rating || !totalNights
+    ) {
+      alert('All fields are required');
+      return;
+    }
+    
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_ENDPOINT}/feedback`, {
+      const response = await axios.post(`https://us-central1-sharp-avatar-428014-f8.cloudfunctions.net/feedbackresponse`, {
         bookingCode,
         fullName,
         roomType,
@@ -101,6 +108,17 @@ export default function Feedback() {
 
       if (response.status === 200) {
         alert('Feedback submitted successfully!');
+        setFormData({
+          bookingCode: '',
+          fullName: '',
+          roomType: '',
+          numberOfGuests: '',
+          roomPrice: '',
+          roomNumber: '',
+          rating: 0,
+          comment: '',
+          totalNights: ''
+        });
       } else {
         alert('Error submitting feedback');
       }
@@ -181,6 +199,17 @@ export default function Feedback() {
                   onChange={handleChange}
                 />
               </Grid>
+               <Grid item xs={12}>
+                <TextField
+                 required
+                 fullWidth
+                 id="fullName"
+                 label="Full Name"
+                 name="fullName"
+                 value={formData.fullName}
+                 onChange={handleChange}
+                />
+               </Grid>
               <Grid item xs={12}>
                 <FormControl fullWidth required>
                   <InputLabel id="roomType-label">Room Type</InputLabel>
