@@ -13,13 +13,17 @@ def publish_message(request):
         request_json = request.get_json()
         
         if not request_json or 'message' not in request_json:
-            return json.dumps({'error': 'Invalid request payload'}), 400
+            return json.dumps({'error': 'Invalid request payload. Message missing!'}), 400
+        
+        if not request_json or 'timestamp' not in request_json:
+            return json.dumps({'error': 'Invalid request payload. Message timestamp missing!'}), 400
 
         # Prepare the message to be sent to Pub/Sub
-        user_message = request_json['message']
         message_data = {
             'user_id': request_json.get('user_id', 'unknown'),
-            'message': user_message
+            'role': request_json['role'],
+            'message': request_json['message'],
+            'timestamp': request_json['timestamp']
         }
 
         # Publish the message to the Pub/Sub topic
