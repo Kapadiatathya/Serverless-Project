@@ -9,10 +9,15 @@ def pubsub_to_user(event, context):
     
     # Extract user ID from the message
     user_id = message_data.get('user_id')
+    agent_id = message_data.get('agent_id')
     role = message_data.get('role')
     message = message_data.get('message')
     timestamp = message_data.get('timestamp')
     
+    if not user_id:
+        print("No user_id found in the message")
+        return
+
     if not user_id:
         print("No user_id found in the message")
         return
@@ -37,7 +42,7 @@ def pubsub_to_user(event, context):
     user_ref = db.collection('messages').document(user_id)
     user_doc = user_ref.get()
 
-    if role == 'user':                      # saving message of user
+    if role == 'user':
         user_message_object = {
             'message': message,
             'timestamp': timestamp
@@ -45,12 +50,13 @@ def pubsub_to_user(event, context):
         if user_doc.exists:
             user_data = user_doc.to_dict()
             user_ref.update({
+                'agent_id': agent_id,
                 'user_messages': firestore.ArrayUnion([user_message_object])
             })
             print(f"Delivered message to user {user_id}: {message_data}")
         else:
             print(f"User with ID {user_id} does not exist.")
-    elif role == 'agent':                   # saving message of agent
+    elif role == 'agent':
         agent_message_object = {
             'message': message,
             'timestamp': timestamp
@@ -58,8 +64,9 @@ def pubsub_to_user(event, context):
         if user_doc.exists:
             user_data = user_doc.to_dict()
             user_ref.update({
+                'agent_id': agent_id,
                 'agent_messages': firestore.ArrayUnion([agent_message_object])
             })
-            print(f"Delivered message to user {user_id}: {message_data}")
+            print(f"Delivered message: {message_data}")
         else:
             print(f"User with ID {user_id} does not exist.")
