@@ -12,7 +12,7 @@ resource "google_cloud_run_service" "web_app" {
   template {
     spec {
       containers {
-        image = "gcr.io/sdp-team-33/dalvacationhome"
+        image = "gcr.io/sdp-team-33/dalvacationhome:latest"
         ports {
           container_port = 8080
         }
