@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import bookingLogo from '../../bookingcom.svg';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Rooms', 'Reviews', 'Feedback'];
+const pages = ['Rooms', 'Reviews', 'Feedback', 'Book Room'];
 const settings = ['Dashboard', 'ManageRooms', 'Logout'];
 
 function Navbar() {
@@ -65,6 +65,8 @@ function Navbar() {
       navigate("/reviews");
     } else if (page === 'Feedback') {
       navigate("/feedback");
+    } else if (page === 'Book Room') {
+      navigate("/bookings")
     }
   };
 
