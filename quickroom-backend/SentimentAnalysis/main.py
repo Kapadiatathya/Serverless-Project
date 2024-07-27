@@ -3,7 +3,7 @@ import requests
 import os
 from flask import jsonify, make_response, request
 
-API_KEY = "AIzaSyDFuvy8taP-IBVhNehTE6RtYV-6Uq2HmAk"
+API_KEY = ""
 
 def categorize_sentiment(score):
     """Categorize sentiment score."""
