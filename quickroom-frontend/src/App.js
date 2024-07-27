@@ -9,6 +9,7 @@ import AllReviews from "./Components/AllReviews/AllReviews";
 import Dashboard from "./Components/Dashboard/Dashboard";
 import BookingForm from "./Components/BookingForm/BookingForm"
 import ManageRooms from "./Components/ManageRooms/ManageRooms";
+import LiveChatBotWindow from "./Components/LiveChatBotWindow/LiveChatBotWindow";
 
 
 function App() {
@@ -30,6 +31,7 @@ function App() {
           <Route path="/managerooms" element={<ManageRooms />} />
         </Routes>
       </Router>
+      <LiveChatBotWindow></LiveChatBotWindow>
     </div>
   );
 }
