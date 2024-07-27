@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TextField, Button, Grid, Container, Typography } from '@mui/material';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid'; // Import uuid library
+import Navbar from '../Navbar/Navbar';
 
 const BookingForm = () => {
   const [bookingId, setBookingId] = useState(''); // State for bookingId
@@ -94,6 +95,9 @@ const BookingForm = () => {
   };
 
   return (
+    <>
+    <Navbar>
+    </Navbar>
     <Container maxWidth="sm">
       <Typography variant="h4" component="h1" gutterBottom>
         Book a Room
@@ -244,6 +248,8 @@ const BookingForm = () => {
         </Grid>
       </form>
     </Container>
+    </>
+    
   );
 };
 

@@ -14,7 +14,7 @@ import MenuItem from '@mui/material/MenuItem';
 import bookingLogo from '../../bookingcom.svg';
 import { useNavigate } from 'react-router-dom';
 
-const pages = ['Rooms', 'Reviews', 'Feedback', 'Book Room'];
+const pages = ['Reviews', 'Feedback', 'Book Room'];
 const settings = ['Dashboard', 'ManageRooms', 'Logout'];
 
 function Navbar() {
